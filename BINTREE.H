@@ -3,7 +3,7 @@
 
 #include <stdlib.h>
 #include <malloc.h>
-#include<GRAPHICS.H>
+#include <GRAPHICS.H>
 #include <dos.h>
 typedef char DataType;
 
