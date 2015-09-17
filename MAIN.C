@@ -1,0 +1,264 @@
+#include "BinTree.h"
+#include "drawbt.h"
+#include "Input.h"
+void FlashDesk(BinTree bt);
+void DoCommand(BinTree bt,char cmd[]);
+void drawmat(char *mat,int matsize,int x,int y,int color);
+
+void IsBuild();
+void tips();
+void BeginPaint()
+{
+	int driver=DETECT,mode;
+	registerbgidriver(EGAVGA_driver);
+	MAX_X=getmaxx(),MAX_Y=getmaxy();
+	
+	initgraph(&driver,&mode,"");
+	
+}
+void EndPaint()
+{
+	closegraph();
+}
+int main(int agc,char *agv[])
+{
+	BinTree bt,p;
+	
+	char buf[100],cmd[100];
+	BeginPaint();
+	settextstyle(2,0,6);
+	
+	if(agc<=1)
+		agv[1]="tree.txt";
+	if(!FileOp(agv[1],buf))return 0;
+	
+	PreCreateBTree(&bt,buf);
+	if(!bt)return 0;
+	IsBuild();
+	tips();
+	if(!getch())getch();
+	FlashDesk(bt);
+	
+	while(1)
+	{
+		GetCommand(cmd);
+		DoCommand(bt,cmd);
+		if(!getch())getch();
+		FlashDesk(bt);
+	}
+	
+	EndPaint();
+	return 1;
+}
+/*刷新二叉树*/
+void FlashDesk(BinTree bt)
+{
+	char hight[20]="Depth =  ";
+	hight[8] = GetDepth(bt)+0x30;
+	cleardevice();
+	ShowTreeL(bt);
+	ShowTreeR();
+	setcolor(RED);
+	outtextxy(20,30,hight);
+}
+/*刷新二叉树*/
+void FlashR(BinTree bt)
+{
+	char hight[20]="Depth =  ";
+	hight[8] = GetDepth(bt)+0x30;
+	cleardevice();
+	ShowTreeR();
+	setcolor(RED);
+	outtextxy(20,20,hight);
+}
+void DoCommand(BinTree bt,char cmd[])
+{
+
+	FlashDesk(bt);
+	if(!strcmp(cmd,HELP))
+	{
+		cleardevice();
+		tips();
+		
+	}else if(!strcmp(cmd,EXIT))
+	{
+		cleardevice();
+		EndExeShow(jie64S,shu64S,64);
+		getch();
+		closegraph();
+		exit(0);
+		
+		
+	}else if(!strcmp(cmd,PREOD))
+	{
+		
+		showTraverse(bt,PRE);
+		cleardevice();
+		FlashR(bt);
+		showTraverse(bt,PRE);
+		
+	}else if(!strcmp(cmd,INOD))
+	{
+		
+		showTraverse(bt,IN);
+		cleardevice();
+		FlashR(bt);
+		showTraverse(bt,IN);
+	}else if(!strcmp(cmd,POSTOD))
+	{
+		showTraverse(bt,POST);
+		cleardevice();
+		FlashR(bt);
+		showTraverse(bt,POST);
+	}else if(!strcmp(cmd,LEAF))
+	{
+		showLeaf(bt);
+		cleardevice();
+		FlashR(bt);
+		showLeaf(bt);
+	}else
+	{
+		if(!strncmp(cmd,INSERT,7))
+		{
+			if(strlen(cmd)>=12)
+			{
+				if(!InsertBiTree(bt,cmd[7],cmd[9],cmd[11]))
+				{
+					outtextxy(59,getmaxy()-100,"CAN't INSERT THERE!");
+					return ;
+				}
+				FlashDesk(bt);
+			}else
+			{
+				setcolor(RED);
+				outtextxy(59,getmaxy()-100,"REEOR INSERT INPUT!");
+			}
+		}else if(!strncmp(cmd,DEL,4))
+		{
+			if(strlen(cmd)>=5)
+			{
+				if(cmd[4]==bt->data)
+				{
+					EndExeShow(shu24S,kong24S,24);
+					getch();
+					closegraph();
+					exit(0);
+				}
+				DeleteBTree(&bt,cmd[4]);
+				FlashDesk(bt);
+			}else
+			{
+				setcolor(RED);
+				outtextxy(59,getmaxy()-100,"REEOR DEL INPUT!");
+			}
+		}else if(!strncmp(cmd,FIND,5))
+		{
+			if(strlen(cmd)>=8)
+			{
+				showNode(bt,cmd[5],cmd[7]);
+				
+			}else
+			{
+				setcolor(RED);
+				outtextxy(59,getmaxy()-100,"REEOR FIND INPUT!");
+			}
+		}else
+		{
+			setcolor(RED);
+			outtextxy(59,getmaxy()-100,"ERROR COMMAND!");
+		}
+	}
+}
+void EndExeShow(char *mat1,char *mat2,int matsize)
+{
+	cleardevice();
+
+	drawmat(mat1,matsize,getmaxx()/2-matsize*2,getmaxy()/3,RED);
+	drawmat(mat2,matsize,getmaxx()/2+matsize,getmaxy()/3,RED);
+}
+void drawmat(char *mat,int matsize,int x,int y,int color)
+/*依次：字模指针、点阵大小、起始坐标(x,y)、颜色*/
+{int i,j,k,n;
+ n=(matsize-1)/8+1;
+ for(j=0;j<matsize;j++)
+  for(i=0;i<n;i++)
+   for(k=0;k<8;k++)
+    if(mat[j*n+i]&(0x80>>k))  /*测试为1的位则显示*/
+     putpixel(x+i*8+k,y+j,color);
+}
+
+void IsBuild()
+{
+	int i;
+	for(i=0;i<7;i++)
+	{
+		drawmat( Build[i],16,200+i*20,30,RED);
+	}
+}
+void tips()
+{
+	int maxx,maxy;
+	int i;
+	char command[10][20]={
+		"preorder",
+		"inorder",
+		"postorder",
+		"insert z w r/l",
+		"del a",
+		"leaf",
+		"find a p/i/l",
+		"exit",
+		"help",
+		"(use up or down)"
+		
+	};
+	maxx=getmaxx();
+	maxy=getmaxy();
+	
+	for(i=0;i<8;i++)
+	{
+		drawmat( TIPSTR[i],16,100+i*20,80,RED);
+	}
+	setcolor(WHITE);
+	for(i=0;i<10;i++)
+	{
+		outtextxy(maxx/2-100,maxy/2-120+i*30,command[i]);
+	}		
+}
+/*
+	ShowTree(bt);
+	getch();
+	
+	
+	
+	getch();
+	cleardevice();
+	ShowTree(bt);
+	showTraverse(bt,IN);
+	
+	getch();
+	cleardevice();
+	ShowTree(bt);
+	showTraverse(bt,POST);
+	getch();
+	
+	cleardevice();
+	InsertBiTree(bt,'n','w','r');
+	ShowTree(bt);
+	getch();
+	cleardevice();
+	ShowTree(bt);
+	DeleteBTree(bt,'n');
+	
+	cleardevice();
+	ShowTree(bt);
+	
+	showTraverse(bt,PRE);
+	getch();
+	
+	cleardevice();
+	ShowTree(bt);
+	showLeaf(bt);
+	getch();
+
+*/
