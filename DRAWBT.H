@@ -433,11 +433,12 @@ void ShowTreeL(BinTree bt)
 {
 	
 	int i,j,old_rx,old_ry,sum=0;
-	
+	int k;
 	
 	MAX_X=getmaxx(),MAX_Y=getmaxy();
 	BTreeToArr(bt,BTXY);
 	GetBTArrXY(BTXY);
+	k=GetDepth(bt);
 	if(BTXY[0].bt==0)
 	{
 		closegraph();
@@ -455,7 +456,7 @@ void ShowTreeL(BinTree bt)
 			
 			if(BTXY[sum].bt->data&&i>0)
 			{	
-				old_ry=(i-1)*MAX_Y/7+30;
+				old_ry=(i)*(MAX_Y-150)/(k+1);
 				old_rx=pow(-1,j)*MAX_X/pow(2,i+1)+BTXY[sum].x;
 				CLine(old_rx,old_ry+10,BTXY[sum].x,BTXY[sum].y,WHITE);
 				
@@ -509,6 +510,7 @@ void ShowTreeR()
 void GetBTArrXY(BTreeXY BTXY[])
 {
 	int i,j;
+	int k=GetDepth(BTXY[0].bt);
 	for(i=0;i<5;i++)
 	{
 			for(j=0;j<pow(2,i);j++)
@@ -516,12 +518,12 @@ void GetBTArrXY(BTreeXY BTXY[])
 				if(i==0&&BTXY[0].bt!=0)
 				{
 					BTXY[0].x=(2*j+1)*MAX_X/pow(2,i+1);
-					BTXY[0].y=(i)*MAX_Y/7+30;
+					BTXY[0].y=(i+1)*(MAX_Y-150)/(k+1);
 					
 				}else if(BTXY[FunSumPow(i-1)+j].bt!=0)
 				{
 					BTXY[FunSumPow(i-1)+j].x=(2*j+1)*MAX_X/pow(2,i+1);
-					BTXY[FunSumPow(i-1)+j].y=(i)*MAX_Y/7+30;
+					BTXY[FunSumPow(i-1)+j].y=(i+1)*(MAX_Y-150)/(k+1);
 				}
 				
 			}
